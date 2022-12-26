@@ -19,6 +19,7 @@ class LoginScreen extends StatelessWidget {
           'https://www.googleapis.com/auth/contacts.readonly',
         ],
       );
+      await googleSignIn.signOut();
       final res = await googleSignIn.signIn();
       final GoogleSignInAuthentication? googleAuth = await res?.authentication;
 

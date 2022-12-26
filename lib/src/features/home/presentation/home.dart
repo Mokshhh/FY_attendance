@@ -13,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   bool isAuthenticated = false;
   @override
   Widget build(BuildContext context) {
@@ -32,64 +31,60 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: true
-          ? const ScannerWIFI()
-          : Center(
-              child: isAuthenticated
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(
-                          Icons.done_outline_rounded,
-                          color: Colors.green,
-                          size: 48,
-                        ),
-                        Text(
-                          "Authenticated",
-                          style: TextStyle(
-                              color: Colors.green, fontWeight: FontWeight.w900),
-                        ),
-                      ],
-                    )
-                  : TextButton(
-                      child: const Text("Authenticate"),
-                      onPressed: () async {
-                        try {
-                          final LocalAuthentication auth =
-                              LocalAuthentication();
-                          final bool canAuthenticateWithBiometrics =
-                              await auth.canCheckBiometrics;
-                          final bool canAuthenticate =
-                              canAuthenticateWithBiometrics ||
-                                  await auth.isDeviceSupported();
-                          print(canAuthenticate);
-                          final List<BiometricType> availableBiometrics =
-                              await auth.getAvailableBiometrics();
-                          if (availableBiometrics.isNotEmpty) {
-                            print(availableBiometrics);
-                          }
+      body: Center(
+        child: isAuthenticated
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.done_outline_rounded,
+                    color: Colors.green,
+                    size: 48,
+                  ),
+                  Text(
+                    "Authenticated",
+                    style: TextStyle(
+                        color: Colors.green, fontWeight: FontWeight.w900),
+                  ),
+                  Expanded(child: ScannerWIFI())
+                ],
+              )
+            : TextButton(
+                child: const Text("Authenticate"),
+                onPressed: () async {
+                  try {
+                    final LocalAuthentication auth = LocalAuthentication();
+                    final bool canAuthenticateWithBiometrics =
+                        await auth.canCheckBiometrics;
+                    final bool canAuthenticate =
+                        canAuthenticateWithBiometrics ||
+                            await auth.isDeviceSupported();
+                    print(canAuthenticate);
+                    final List<BiometricType> availableBiometrics =
+                        await auth.getAvailableBiometrics();
+                    if (availableBiometrics.isNotEmpty) {
+                      print(availableBiometrics);
+                    }
 
-                          if (availableBiometrics
-                                  .contains(BiometricType.strong) ||
-                              availableBiometrics
-                                  .contains(BiometricType.face)) {
-                            final bool didAuthenticate = await auth.authenticate(
-                                localizedReason:
-                                    'Please authenticate to show account balance',
-                                options: const AuthenticationOptions(
-                                    biometricOnly: true));
-                            if (didAuthenticate) {
-                              setState(() {
-                                isAuthenticated = true;
-                              });
-                            }
-                          }
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                    ),
-            ),
+                    if (availableBiometrics.contains(BiometricType.strong) ||
+                        availableBiometrics.contains(BiometricType.face)) {
+                      final bool didAuthenticate = await auth.authenticate(
+                          localizedReason:
+                              'Please authenticate to show account balance',
+                          options:
+                              const AuthenticationOptions(biometricOnly: true));
+                      if (didAuthenticate) {
+                        setState(() {
+                          isAuthenticated = true;
+                        });
+                      }
+                    }
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+              ),
+      ),
     );
   }
 }
@@ -115,7 +110,7 @@ class _ScannerWIFIState extends State<ScannerWIFI> {
     });
     ArpScanner.onScanFinished.listen((List<Device> devices) {
       setState(() {
-        _result = "${_result}total: ${devices.length}";
+        _result = "${_result}total: ${devices.length} Students attended. (updated in database)";
       });
     });
   }
@@ -131,15 +126,16 @@ class _ScannerWIFIState extends State<ScannerWIFI> {
               await ArpScanner.cancel();
             },
           ),
-          FloatingActionButton(
-              child: const Icon(Icons.scanner_sharp),
-              onPressed: () async {
-                //scan sub net devices
-                await ArpScanner.scan();
-                setState(() {
-                  _result = "";
-                });
-              }),
+          TextButton.icon(
+            onPressed: () async {
+              await ArpScanner.scan();
+              setState(() {
+                _result = "";
+              });
+            },
+            icon: const Icon(Icons.scanner_sharp),
+            label: const Text("Search Attended Users"),
+          ),
           Text(_result),
         ],
       ),
