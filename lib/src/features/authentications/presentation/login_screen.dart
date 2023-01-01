@@ -11,6 +11,7 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   void googleSignIn(BuildContext context) async {
+    print("sda");
     try {
       // await FirebaseAuth.instance.signOut();
       GoogleSignIn googleSignIn = GoogleSignIn(

@@ -25,7 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              context.go("/");
+              if (mounted) {
+                context.go("/");
+              }
             },
             icon: const Icon(Icons.logout),
           )
@@ -46,43 +48,60 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                         color: Colors.green, fontWeight: FontWeight.w900),
                   ),
-                  Expanded(child: ScannerWIFI())
+                  Expanded(child: ScannerWIFI()),
                 ],
               )
-            : TextButton(
-                child: const Text("Authenticate"),
-                onPressed: () async {
-                  try {
-                    final LocalAuthentication auth = LocalAuthentication();
-                    final bool canAuthenticateWithBiometrics =
-                        await auth.canCheckBiometrics;
-                    final bool canAuthenticate =
-                        canAuthenticateWithBiometrics ||
-                            await auth.isDeviceSupported();
-                    print(canAuthenticate);
-                    final List<BiometricType> availableBiometrics =
-                        await auth.getAvailableBiometrics();
-                    if (availableBiometrics.isNotEmpty) {
-                      print(availableBiometrics);
-                    }
+            : Column(
+                children: [
+                  TextButton(
+                    child: const Text("Authenticate"),
+                    onPressed: () async {
+                      try {
+                        final LocalAuthentication auth = LocalAuthentication();
+                        final bool canAuthenticateWithBiometrics =
+                            await auth.canCheckBiometrics;
+                        final bool canAuthenticate =
+                            canAuthenticateWithBiometrics ||
+                                await auth.isDeviceSupported();
+                        print(canAuthenticate);
+                        final List<BiometricType> availableBiometrics =
+                            await auth.getAvailableBiometrics();
+                        if (availableBiometrics.isNotEmpty) {
+                          print(availableBiometrics);
+                        }
 
-                    if (availableBiometrics.contains(BiometricType.strong) ||
-                        availableBiometrics.contains(BiometricType.face)) {
-                      final bool didAuthenticate = await auth.authenticate(
-                          localizedReason:
-                              'Please authenticate to show account balance',
-                          options:
-                              const AuthenticationOptions(biometricOnly: true));
-                      if (didAuthenticate) {
-                        setState(() {
-                          isAuthenticated = true;
-                        });
+                        if (availableBiometrics
+                                .contains(BiometricType.strong) ||
+                            availableBiometrics.contains(BiometricType.face)) {
+                          final bool didAuthenticate = await auth.authenticate(
+                              localizedReason:
+                                  'Please authenticate to show account balance',
+                              options: const AuthenticationOptions(
+                                  biometricOnly: true));
+                          if (didAuthenticate) {
+                            setState(() {
+                              isAuthenticated = true;
+                            });
+                          }
+                        }
+                      } catch (e) {
+                        print(e);
                       }
-                    }
-                  } catch (e) {
-                    print(e);
-                  }
-                },
+                    },
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.pushNamed('teacher');
+                    },
+                    child: const Text("Teachers"),
+                  ),
+                   TextButton(
+                    onPressed: () {
+                      context.pushNamed('student');
+                    },
+                    child: const Text("Students"),
+                  )
+                ],
               ),
       ),
     );
@@ -110,7 +129,8 @@ class _ScannerWIFIState extends State<ScannerWIFI> {
     });
     ArpScanner.onScanFinished.listen((List<Device> devices) {
       setState(() {
-        _result = "${_result}total: ${devices.length} Students attended. (updated in database)";
+        _result =
+            "${_result}total: ${devices.length} Students attended. (updated in database)";
       });
     });
   }
@@ -136,7 +156,11 @@ class _ScannerWIFIState extends State<ScannerWIFI> {
             icon: const Icon(Icons.scanner_sharp),
             label: const Text("Search Attended Users"),
           ),
-          Text(_result),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(_result),
+            ),
+          ),
         ],
       ),
     );
