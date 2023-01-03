@@ -79,7 +79,6 @@ flutter:
     - assets/fonts/
     - assets/myicons/
     - assets/images/
-    - assets/images/shopping/
 
   fonts:
     - family: Montserrat

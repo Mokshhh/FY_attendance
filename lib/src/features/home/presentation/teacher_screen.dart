@@ -27,21 +27,54 @@ class _TeacherScreenState extends State<TeacherScreen> {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             !_sessionOn
-                ? TextButton(
-                    onPressed: () {
-                      database.ref("/session").set(true);
-                    },
-                    child: const Text("Start Session"),
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: TextButton(
+                        onPressed: () {
+                          database.ref("/session").set(true);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("assets/images/start.png"),
+                            const Text(
+                              "Start Session",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   )
-                : TextButton(
-                    onPressed: () {
-                      database.ref("/session").set(false);
-                    },
-                    child: const Text("Stop Session"),
+                : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: Column(
+                        children: [
+                          const SizedBox(height: 12,),
+                          const Text(
+                            "Session Running, Students are notified to mark attendance.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Image.asset("assets/images/running.gif"),
+                          TextButton(
+                            onPressed: () {
+                              database.ref("/session").set(false);
+                            },
+                            child: const Text(
+                              "Stop Session",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ],
+                      ),
                   ),
+                ),
           ],
         ),
       ),
